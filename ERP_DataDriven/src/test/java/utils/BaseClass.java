@@ -16,13 +16,15 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.MediaEntityBuilder;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
-public class BaseClass {
+public class BaseClass 
+{
     public static WebDriver driver;
     public static ExtentReports extent;
     public static ExtentTest test;
 
     @BeforeSuite
-    public void setUpReport() {
+    public void setUpReport()
+    {
         ExtentSparkReporter spark = new ExtentSparkReporter("./target/reports/LoginTest.html");
         extent = new ExtentReports();
         extent.attachReporter(spark);

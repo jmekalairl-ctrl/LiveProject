@@ -1,5 +1,6 @@
 package ERP.Pages;
 
-public class AdminLoginPage {
+public class AdminLoginPage 
+{
 
 }
