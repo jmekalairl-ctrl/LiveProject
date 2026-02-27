@@ -74,7 +74,7 @@ public void setCellData(String sheetName,int row,int column,String status,String
 		 
 }
 public static void main(String[] args) throws Throwable {
-	ExcelFileUtil xl = new ExcelFileUtil("D:/MyFile.xlsx");
+	ExcelFileUtil xl = new ExcelFileUtil("C:/MyFile.xlsx");
 	int rc = xl.rowCount("Emp");
 	System.out.println(rc);
 	for(int i=1;i<=rc;i++)
@@ -84,8 +84,8 @@ public static void main(String[] args) throws Throwable {
 		String lname = xl.getCellData("Emp", i, 2);
 		String eid = xl.getCellData("Emp", i, 3);
 		System.out.println(fname+"   "+mname+"   "+lname+"   "+eid);
-		//xl.setCellData("Emp", i, 4, "pass", "D:/Results.xlsx");
-		xl.setCellData("Emp", i, 4, "Fail", "D:/Results.xlsx");
+		//xl.setCellData("Emp", i, 4, "pass", "C:/Results.xlsx");
+		xl.setCellData("Emp", i, 4, "Fail", "C/Results.xlsx");
 	}
 	
 }
