@@ -1,12 +1,18 @@
 package utils;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Duration;
+import java.util.Properties;
+
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.ITestResult;
+import org.testng.Reporter;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
@@ -16,16 +22,17 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.MediaEntityBuilder;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
-public class BaseClass 
-{
+import ERP.Pages.AdminLoginPage;
+import ERP.Pages.AdminLogoutPage;
+import io.github.bonigarcia.wdm.WebDriverManager;
+public class BaseClass {
     public static WebDriver driver;
     public static ExtentReports extent;
     public static ExtentTest test;
-
+   public static Properties conpro;
     @BeforeSuite
-    public void setUpReport()
-    {
-        ExtentSparkReporter spark = new ExtentSparkReporter("./target/reports/LoginTest.html");
+    public void setUpReport() {
+        ExtentSparkReporter spark = new ExtentSparkReporter("./target/reports/ERPTest.html");
         extent = new ExtentReports();
         extent.attachReporter(spark);
         spark.config().setTheme(Theme.DARK);
@@ -35,10 +42,36 @@ public class BaseClass
     }
 
     @BeforeMethod
-    public void setupBrowser(ITestResult result) {
+    public void setupBrowser(ITestResult result)throws Throwable {
         test = extent.createTest(result.getMethod().getMethodName());
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
+       conpro = new Properties();
+       conpro.load(new FileInputStream("./PropertyFiles/Environment.properties"));
+       if(conpro.getProperty("Browser").equalsIgnoreCase("chrome"))
+       {
+    	   driver = new ChromeDriver();
+    	   driver.manage().window().maximize();
+    	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+    	   driver.get(conpro.getProperty("Url"));
+    	   AdminLoginPage loginpage = new AdminLoginPage(driver);
+    	   loginpage.login("admin", "master");
+       }
+       else if(conpro.getProperty("Browser").equalsIgnoreCase("firefox"))
+       {
+    	  driver = new FirefoxDriver();
+    	   driver.manage().window().maximize();
+    	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+    	   driver.get(conpro.getProperty("Url"));
+    	   AdminLoginPage loginpage = new AdminLoginPage(driver);
+    	   loginpage.login("admin", "master");
+       }
+       else
+       {
+    	  try {
+			throw new IllegalArgumentException("Browser value is Not matching");
+		} catch (IllegalArgumentException e) {
+			Reporter.log(e.getMessage(),true);
+		} 
+       }
     }
 
     @AfterMethod
@@ -49,7 +82,10 @@ public class BaseClass
         } else if (result.getStatus() == ITestResult.SUCCESS) {
             test.pass("Passed");
         }
-        if (driver != null) driver.quit();
+        
+        AdminLogoutPage logout = new AdminLogoutPage(driver);
+        logout.adminLogout();
+        driver.quit();
     }
 
     @AfterSuite
