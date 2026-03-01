@@ -26,77 +26,77 @@ import ERP.Pages.AdminLoginPage;
 import ERP.Pages.AdminLogoutPage;
 import io.github.bonigarcia.wdm.WebDriverManager;
 public class BaseClass {
-    public static WebDriver driver;
-    public static ExtentReports extent;
-    public static ExtentTest test;
-   public static Properties conpro;
-    @BeforeSuite
-    public void setUpReport() {
-        ExtentSparkReporter spark = new ExtentSparkReporter("./target/reports/ERPTest.html");
-        extent = new ExtentReports();
-        extent.attachReporter(spark);
-        spark.config().setTheme(Theme.DARK);
-        spark.config().setDocumentTitle("Data Driven Testing");
-        spark.config().setReportName("Test Execution Results");
-        
-    }
+	public static WebDriver driver;
+	public static ExtentReports extent;
+	public static ExtentTest test;
+	public static Properties conpro;
+	@BeforeSuite
+	public void setUpReport() {
+		ExtentSparkReporter spark = new ExtentSparkReporter("./target/reports/ERPTest.html");
+		extent = new ExtentReports();
+		extent.attachReporter(spark);
+		spark.config().setTheme(Theme.DARK);
+		spark.config().setDocumentTitle("Data Driven Testing");
+		spark.config().setReportName("Test Execution Results");
 
-    @BeforeMethod
-    public void setupBrowser(ITestResult result)throws Throwable {
-        test = extent.createTest(result.getMethod().getMethodName());
-       conpro = new Properties();
-       conpro.load(new FileInputStream("./PropertyFiles/Environment.properties"));
-       if(conpro.getProperty("Browser").equalsIgnoreCase("chrome"))
-       {
-    	   driver = new ChromeDriver();
-    	   driver.manage().window().maximize();
-    	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-    	   driver.get(conpro.getProperty("Url"));
-    	   AdminLoginPage loginpage = new AdminLoginPage(driver);
-    	   loginpage.login("admin", "master");
-       }
-       else if(conpro.getProperty("Browser").equalsIgnoreCase("firefox"))
-       {
-    	  driver = new FirefoxDriver();
-    	   driver.manage().window().maximize();
-    	   driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-    	   driver.get(conpro.getProperty("Url"));
-    	   AdminLoginPage loginpage = new AdminLoginPage(driver);
-    	   loginpage.login("admin", "master");
-       }
-       else
-       {
-    	  try {
-			throw new IllegalArgumentException("Browser value is Not matching");
-		} catch (IllegalArgumentException e) {
-			Reporter.log(e.getMessage(),true);
-		} 
-       }
-    }
+	}
 
-    @AfterMethod
-    public void tearDown(ITestResult result) throws IOException {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            String path = captureScreenshot(result.getName());
-            test.fail("Failed: " + result.getThrowable(), MediaEntityBuilder.createScreenCaptureFromPath(path).build());
-        } else if (result.getStatus() == ITestResult.SUCCESS) {
-            test.pass("Passed");
-        }
-        
-        AdminLogoutPage logout = new AdminLogoutPage(driver);
-        logout.adminLogout();
-        driver.quit();
-    }
+	@BeforeMethod
+	public void setupBrowser(ITestResult result)throws Throwable {
+		test = extent.createTest(result.getMethod().getMethodName());
+		conpro = new Properties();
+		conpro.load(new FileInputStream("./PropertyFiles/Environment.properties"));
+		if(conpro.getProperty("Browser").equalsIgnoreCase("chrome"))
+		{
+			driver = new ChromeDriver();
+			driver.manage().window().maximize();
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+			driver.get(conpro.getProperty("Url"));
+			AdminLoginPage loginpage = new AdminLoginPage(driver);
+			loginpage.login("admin", "master");
+		}
+		else if(conpro.getProperty("Browser").equalsIgnoreCase("firefox"))
+		{
+			driver = new FirefoxDriver();
+			driver.manage().window().maximize();
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+			driver.get(conpro.getProperty("Url"));
+			AdminLoginPage loginpage = new AdminLoginPage(driver);
+			loginpage.login("admin", "master");
+		}
+		else
+		{
+			try {
+				throw new IllegalArgumentException("Browser value is Not matching");
+			} catch (IllegalArgumentException e) {
+				Reporter.log(e.getMessage(),true);
+			} 
+		}
+	}
 
-    @AfterSuite
-    public void flushReport() {
-        extent.flush(); // Writes data
-        
-    }
+	@AfterMethod
+	public void tearDown(ITestResult result) throws IOException {
+		if (result.getStatus() == ITestResult.FAILURE) {
+			String path = captureScreenshot(result.getName());
+			test.fail("Failed: " + result.getThrowable(), MediaEntityBuilder.createScreenCaptureFromPath(path).build());
+		} else if (result.getStatus() == ITestResult.SUCCESS) {
+			test.pass("Passed");
+		}
 
-    public String captureScreenshot(String name) throws IOException {
-        String path = System.getProperty("user.dir") + "./target/reports/screenshots/" + name + ".png";
-        FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
-        return path;
-    }
+		AdminLogoutPage logout = new AdminLogoutPage(driver);
+		logout.adminLogout();
+		driver.quit();
+	}
+
+	@AfterSuite
+	public void flushReport() {
+		extent.flush(); // Writes data
+
+	}
+
+	public String captureScreenshot(String name) throws IOException {
+		String path = System.getProperty("user.dir") + "./target/reports/screenshots/" + name + ".png";
+		FileUtils.copyFile(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE), new File(path));
+		return path;
+	}
 }
